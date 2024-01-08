@@ -24,12 +24,12 @@ class GameController {
 
         while (!$this->gameOver()) {
             $this->gameView->displayMessage("Game Board:");
-            $this->gameView->displayGameBoard($this->gameModel->getBoard());
+            $this->gameView->displayGameBoard($this->gameModel->getBoard(1)); // Player 1 board
 
             $this->processPlayerMove(1); // Player 1 turn
 
             $this->gameView->displayMessage("Game Board:");
-            $this->gameView->displayGameBoard($this->gameModel->getBoard());
+            $this->gameView->displayGameBoard($this->gameModel->getBoard(2)); // Player 2 board
 
             $this->processPlayerMove(2); // Player 2 turn
         }
@@ -42,8 +42,7 @@ class GameController {
      * Initializes the game by placing ships for both players.
      */
     private function initializeGame() {
-        $this->gameModel->placeShipsManually(1); // Player 1 places ships
-        $this->gameModel->placeShipsManually(2); // Player 2 places ships
+        $this->gameModel->initializeGame();
     }
 
     /**

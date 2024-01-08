@@ -21,6 +21,7 @@ class GameModel {
                 $config['user'],
                 $config['pass']
             );
+            $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         } catch (\PDOException $e) {
             die('Connection failed: ' . $e->getMessage());
         }
@@ -32,10 +33,8 @@ class GameModel {
     }
 
     private function initializePlayerBoard($player) {
-        // Initialize player board with empty spaces
         $board = array_fill(0, 10, array_fill(0, 10, 0));
 
-        // Allow the player to place each battleship
         $this->placeShipManually($board, 5, $player, "Aircraft Carrier");
         $this->placeShipManually($board, 4, $player, "Battleship");
         $this->placeShipManually($board, 3, $player, "Cruiser");
@@ -50,13 +49,8 @@ class GameModel {
 
         for ($i = 0; $i < $shipSize; $i++) {
             do {
-                // Get user input for ship position
                 $position = strtoupper(trim(readline("Enter the position for space " . ($i + 1) . ": ")));
-
-                // Convert position to coordinates (e.g., "A5" becomes [0, 4])
                 $coordinates = $this->convertPositionToCoordinates($position);
-
-                // Check if the position is valid
                 $isValid = $this->isValidPosition($coordinates, $board);
 
                 if (!$isValid) {
@@ -64,24 +58,30 @@ class GameModel {
                 }
             } while (!$isValid);
 
-            // Mark the ship on the board
             $board[$coordinates[0]][$coordinates[1]] = $shipSize;
         }
     }
 
     private function convertPositionToCoordinates($position) {
-        // Convert position (e.g., "A5") to coordinates [0, 4]
         $column = ord($position[0]) - ord('A');
         $row = intval(substr($position, 1)) - 1;
-
         return [$row, $column];
     }
 
     private function isValidPosition($coordinates, $board) {
-        // Check if the position is within the board boundaries and is not already occupied
         $row = $coordinates[0];
         $column = $coordinates[1];
 
         return $row >= 0 && $row < 10 && $column >= 0 && $column < 10 && $board[$row][$column] === 0;
+    }
+
+    private function savePlayerBoard($player, $board) {
+        $boardJson = json_encode($board);
+
+        $query = "INSERT INTO boards (player_id, board_state) VALUES (:player, :board)";
+        $statement = $this->pdo->prepare($query);
+        $statement->bindParam(':player', $player, \PDO::PARAM_INT);
+        $statement->bindParam(':board', $boardJson, \PDO::PARAM_STR);
+        $statement->execute();
     }
 }

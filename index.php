@@ -3,17 +3,11 @@
 require_once 'vendor/autoload.php';
 
 use src\Controller\GameController;
+use src\Model\GameModel;
 
-// Check if the game is already in progress
-if (!isset($_SESSION['game_in_progress']) || !$_SESSION['game_in_progress']) {
-    // Set the game in progress flag to avoid restarting the game on page refresh
-    $_SESSION['game_in_progress'] = true;
+// Instantiate the necessary objects
+$model = new GameModel();
+$controller = new GameController($model);
 
-    // Create an instance of GameController
-    $gameController = new GameController();
-
-    // Start the game
-    $gameController->startGame();
-} else {
-    echo "The game is already in progress.";
-}
+// Start the game
+$controller->startGame();

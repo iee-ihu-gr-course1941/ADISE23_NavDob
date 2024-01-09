@@ -63,55 +63,11 @@ class GameModel {
     private function savePlayerBoard($player, $board) {
         $boardJson = json_encode($board);
     
-        $query = "INSERT INTO boards (player_id, position_x, position_y, status, board_state) VALUES (?, ?, ?, ?, ?)";
+        $query = "INSERT INTO boards (player_id, board_state) VALUES (?, ?)";
         $statement = $this->mysqli->prepare($query);
-    
-        $statement->bind_param('iiiss', $player, $rowIndex, $colIndex, $status, $boardState);
-    
-        for ($rowIndex = 0; $rowIndex < 10; $rowIndex++) {
-            for ($colIndex = 0; $colIndex < 10; $colIndex++) {
-                $status = $board[$rowIndex][$colIndex]['status'];
-                $boardState = $board[$rowIndex][$colIndex]['board_state'];
-                $statement->execute();
-            }
-        }
-    }          
-
-    // Existing methods...
-
-    /**
-     * Make an attack on the opponent's board.
-     *
-     * @param int $attacker The ID of the attacking player.
-     * @param int $defender The ID of the defending player.
-     * @param string $position The position to attack (e.g., A5).
-     * @return bool True if the attack is valid, false otherwise.
-     */
-    public function makeAttack($attacker, $defender, $position) {
-        $coordinates = $this->convertPositionToCoordinates($position);
-        $defenderBoard = $this->getPlayerBoard($defender);
-
-        // Check if the attack position is valid
-        if ($this->isValidPosition($coordinates, $defenderBoard)) {
-            $status = $defenderBoard[$coordinates[0]][$coordinates[1]]['status'];
-
-            // Update the defender's board based on the attack result
-            if ($status === 'ship') {
-                // Hit
-                $defenderBoard[$coordinates[0]][$coordinates[1]]['status'] = 'hit';
-            } else {
-                // Miss
-                $defenderBoard[$coordinates[0]][$coordinates[1]]['status'] = 'miss';
-            }
-
-            // Save the updated board to the database
-            $this->savePlayerBoard($defender, $defenderBoard);
-
-            return true;
-        }
-
-        return false; // Invalid attack position
-    }
+        $statement->bind_param('is', $player, $boardJson);
+        $statement->execute();
+    }    
 
     /**
      * Get the game board for a specific player from the database.
@@ -198,7 +154,7 @@ class GameModel {
      * @return int|null The player ID of the winner, or null if there is no winner.
      */
     public function getWinner() {
-        $playerIds = [1, 2];
+        $playerIds = [1. 2];
 
         foreach ($playerIds as $playerId) {
             if ($this->areAllShipsSunk($playerId)) {

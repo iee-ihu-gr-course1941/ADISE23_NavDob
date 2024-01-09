@@ -63,11 +63,17 @@ class GameModel {
     private function savePlayerBoard($player, $board) {
         $boardJson = json_encode($board);
     
-        $query = "INSERT INTO boards (player_id, board_state) VALUES (?, ?)";
+        $query = "INSERT INTO boards (player_id, coordinate, status, board_state) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE status = ?, board_state = ?";
         $statement = $this->mysqli->prepare($query);
-        $statement->bind_param('is', $player, $boardJson);
-        $statement->execute();
-    }    
+    
+        foreach ($board as $rowIndex => $row) {
+            foreach ($row as $colIndex => $cell) {
+                $coordinate = chr(ord('A') + $colIndex) . ($rowIndex + 1);
+                $statement->bind_param('ississ', $player, $coordinate, $cell['status'], $boardJson, $cell['status'], $boardJson);
+                $statement->execute();
+            }
+        }
+    }      
 
     /**
      * Get the game board for a specific player from the database.

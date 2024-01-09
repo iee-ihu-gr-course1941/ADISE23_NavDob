@@ -68,4 +68,41 @@ class GameModel {
         $statement->bind_param('is', $player, $boardJson);
         $statement->execute();
     }
+
+    /**
+     * Check if all ships for a player have been sunk.
+     *
+     * @param int $playerId The player ID.
+     * @return bool True if all ships are sunk, false otherwise.
+     */
+    private function areAllShipsSunk($playerId) {
+        $playerBoard = $this->getPlayerBoard($playerId);
+
+        // Iterate through the board and check if any ship is still afloat
+        foreach ($playerBoard as $row) {
+            foreach ($row as $cell) {
+                if ($cell === 'ship') {
+                    return false; // At least one ship is still afloat
+                }
+            }
+        }
+
+        return true; // All ships are sunk
+    }
+
+    /**
+     * Checks if the game is over.
+     *
+     * @return bool True if the game is over, false otherwise.
+     */
+    public function isGameOver() {
+        // Iterate through each player and check if all their ships have been sunk
+        foreach ($this->getPlayerIds() as $playerId) {
+            if (!$this->areAllShipsSunk($playerId)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

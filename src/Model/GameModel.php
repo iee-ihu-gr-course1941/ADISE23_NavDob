@@ -68,7 +68,7 @@ class GameModel {
         foreach ($board as $rowIndex => $row) {
             foreach ($row as $colIndex => $cell) {
                 $coordinate = chr(ord('A') + $colIndex) . ($rowIndex + 1);
-                $status = $cell['status'];
+                $status = $this->getStatusValue($cell['status']);
     
                 $values .= "($player, '$coordinate', '$status', '$boardJson'),";
             }
@@ -87,7 +87,19 @@ class GameModel {
         if (!$result) {
             die('Error in query: ' . $this->mysqli->error);
         }
-    }           
+    }
+    
+    /**
+     * Get the valid status value for the ENUM column.
+     *
+     * @param string $status The status value to check.
+     * @return string The valid status value.
+     */
+    private function getStatusValue($status) {
+        $validStatusValues = ['empty', 'ship', 'hit', 'miss'];
+        return in_array($status, $validStatusValues) ? $status : 'empty';
+    }
+              
 
     /**
      * Get the game board for a specific player from the database.

@@ -62,13 +62,15 @@ class GameModel {
 
     private function savePlayerBoard($player, $board) {
         $boardJson = json_encode($board);
-
+    
         $query = "INSERT INTO boards (player_id, position_x, position_y, status, board_state) VALUES (?, ?, ?, ?, ?)";
         $statement = $this->mysqli->prepare($query);
-
+    
         foreach ($board as $rowIndex => $row) {
             foreach ($row as $colIndex => $cell) {
-                $statement->bind_param('iiisi', $player, $rowIndex, $colIndex, $cell['status'], $cell['board_state']);
+                $status = $cell['status'];
+                $boardState = $cell['board_state'];
+                $statement->bind_param('iiisi', $player, $rowIndex, $colIndex, $status, $boardState);
                 $statement->execute();
             }
         }
@@ -195,7 +197,7 @@ class GameModel {
      * @return int|null The player ID of the winner, or null if there is no winner.
      */
     public function getWinner() {
-        $playerIds = $this->getPlayerIds();
+        $playerIds = [1, 2];
 
         foreach ($playerIds as $playerId) {
             if ($this->areAllShipsSunk($playerId)) {

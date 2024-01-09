@@ -63,10 +63,51 @@ class GameModel {
     private function savePlayerBoard($player, $board) {
         $boardJson = json_encode($board);
 
-        $query = "INSERT INTO boards (player_id, board_state) VALUES (?, ?)";
+        $query = "INSERT INTO boards (player_id, position_x, position_y, status, board_state) VALUES (?, ?, ?, ?, ?)";
         $statement = $this->mysqli->prepare($query);
-        $statement->bind_param('is', $player, $boardJson);
-        $statement->execute();
+
+        foreach ($board as $rowIndex => $row) {
+            foreach ($row as $colIndex => $cell) {
+                $statement->bind_param('iiisi', $player, $rowIndex, $colIndex, $cell['status'], $cell['board_state']);
+                $statement->execute();
+            }
+        }
+    }
+
+    // Existing methods...
+
+    /**
+     * Make an attack on the opponent's board.
+     *
+     * @param int $attacker The ID of the attacking player.
+     * @param int $defender The ID of the defending player.
+     * @param string $position The position to attack (e.g., A5).
+     * @return bool True if the attack is valid, false otherwise.
+     */
+    public function makeAttack($attacker, $defender, $position) {
+        $coordinates = $this->convertPositionToCoordinates($position);
+        $defenderBoard = $this->getPlayerBoard($defender);
+
+        // Check if the attack position is valid
+        if ($this->isValidPosition($coordinates, $defenderBoard)) {
+            $status = $defenderBoard[$coordinates[0]][$coordinates[1]]['status'];
+
+            // Update the defender's board based on the attack result
+            if ($status === 'ship') {
+                // Hit
+                $defenderBoard[$coordinates[0]][$coordinates[1]]['status'] = 'hit';
+            } else {
+                // Miss
+                $defenderBoard[$coordinates[0]][$coordinates[1]]['status'] = 'miss';
+            }
+
+            // Save the updated board to the database
+            $this->savePlayerBoard($defender, $defenderBoard);
+
+            return true;
+        }
+
+        return false; // Invalid attack position
     }
 
     /**

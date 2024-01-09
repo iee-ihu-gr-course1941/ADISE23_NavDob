@@ -70,6 +70,51 @@ class GameModel {
     }
 
     /**
+     * Get the game board for a specific player from the database.
+     *
+     * @param int $playerId The ID of the player.
+     * @return array The game board for the player.
+     */
+    public function getPlayerBoard($playerId) {
+        // Assuming you have a 'boards' table with columns 'position_x', 'position_y', 'status', and 'board_state'
+        $query = "SELECT position_x, position_y, status, board_state FROM boards WHERE player_id = ?";
+        $statement = $this->mysqli->prepare($query);
+        $statement->bind_param('i', $playerId);
+        $statement->execute();
+        $statement->bind_result($positionX, $positionY, $status, $boardState);
+
+        // Create an array to represent the game board
+        $board = array_fill(0, 10, array_fill(0, 10, 0));
+
+        // Fetch each row and update the game board
+        while ($statement->fetch()) {
+            // Update the board based on retrieved data
+            $board[$positionX][$positionY] = ['status' => $status, 'board_state' => $boardState];
+        }
+
+        $statement->close();
+
+        // If the board is empty (no data in the database), initialize it
+        if ($this->isBoardEmpty($board)) {
+            $this->initializePlayerBoard($playerId, $board);
+        }
+
+        return $board;
+    }
+
+    /**
+     * Check if the board is empty (no data in the database).
+     *
+     * @param array $board The game board.
+     * @return bool True if the board is empty, false otherwise.
+     */
+    private function isBoardEmpty($board) {
+        // Check if the board is empty based on your specific criteria
+        // For example, check if all elements are 0
+        return array_reduce($board, 'array_merge', []) === array_fill(0, 100, 0);
+    }
+
+    /**
      * Check if all ships for a player have been sunk.
      *
      * @param int $playerId The player ID.

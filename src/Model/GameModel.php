@@ -65,7 +65,7 @@ class GameModel {
 
         $query = "INSERT INTO boards (player_id, board_state) VALUES (?, ?)";
         $statement = $this->mysqli->prepare($query);
-        $statement->bindParam('is', $player, $boardJson);
+        $statement->bind_param('is', $player, $boardJson);
         $statement->execute();
     }
 }

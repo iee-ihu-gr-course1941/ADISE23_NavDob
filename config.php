@@ -1,35 +1,20 @@
 <?php
+$host='localhost';
+$db = 'THE_DB';
+require_once "db_upass.php";
 
-$host = 'users.iee.ihu.gr';
-$db = 'navmaxia';
-$user = 'it185404';
-$pass = '';
-$charset = 'utf8mb4';
+$user=$DB_USER;
+$pass=$DB_PASS;
 
-// Check if the host is 'users.iee.ihu.gr'
-if (gethostname() == 'users.iee.ihu.gr') {
-    $mysqli = new mysqli(
-        $host,
-        $user,
-        $pass,
-        $db,
-        null,
-        '/home/student/it/2018/it185404/mysql/run/mysql.sock'
-    );
+
+if(gethostname()=='users.iee.ihu.gr') {
+	$mysqli = new mysqli($host, $user, $pass, $db,null,'/home/student/it/2018/it185404/mysql/run/mysql.sock');
 } else {
-    // For other hosts, use a traditional connection with a password
-    $mysqli = new mysqli($host, $user, $pass, $db);
+        $mysqli = new mysqli($host, $user, $pass, $db);
 }
 
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
-}
+if ($mysqli->connect_errno) {
+    echo "Failed to connect to MySQL: (" . 
+    $mysqli->connect_errno . ") " . $mysqli->connect_error;
+}?>
 
-return [
-    'host' => $host,
-    'db' => $db,
-    'user' => $user,
-    'pass' => $pass,
-    'charset' => $charset,
-    'mysqli' => $mysqli, // Return the MySQLi object for database operations
-];

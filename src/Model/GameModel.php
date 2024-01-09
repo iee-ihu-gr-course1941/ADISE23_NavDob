@@ -96,13 +96,10 @@ class GameModel {
      * @return bool True if the game is over, false otherwise.
      */
     public function isGameOver() {
-        // Iterate through each player and check if all their ships have been sunk
-        foreach ($this->getPlayerIds() as $playerId) {
-            if (!$this->areAllShipsSunk($playerId)) {
-                return false;
-            }
-        }
+        // Check if all ships for a players are sunk
+        $allShipsSunkPlayer1 = $this->areAllShipsSunk(1);
+        $allShipsSunkPlayer2 = $this->areAllShipsSunk(2);
 
-        return true;
+        return $allShipsSunkPlayer1 || $allShipsSunkPlayer2;
     }
 }

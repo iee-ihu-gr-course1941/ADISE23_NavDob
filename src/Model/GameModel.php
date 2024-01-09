@@ -12,21 +12,6 @@ class GameModel {
         $this->mysqli = $config['mysqli'];
     }
 
-    private function initDatabaseConnection() {
-        $config = include 'config.php';
-
-        try {
-            $this->pdo = new \PDO(
-                "mysql:host=" . $config['host'] . ";dbname=" . $config['db'] . ";charset=" . $config['charset'],
-                $config['user'],
-                $config['pass']
-            );
-            $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        } catch (\PDOException $e) {
-            die('Connection failed: ' . $e->getMessage());
-        }
-    }
-
     public function initializeGame() {
         $this->initializePlayerBoard(1);
         $this->initializePlayerBoard(2);
@@ -78,10 +63,9 @@ class GameModel {
     private function savePlayerBoard($player, $board) {
         $boardJson = json_encode($board);
 
-        $query = "INSERT INTO boards (player_id, board_state) VALUES (:player, :board)";
-        $statement = $this->pdo->prepare($query);
-        $statement->bindParam(':player', $player, \PDO::PARAM_INT);
-        $statement->bindParam(':board', $boardJson, \PDO::PARAM_STR);
+        $query = "INSERT INTO boards (player_id, board_state) VALUES (?, ?)";
+        $statement = $this->mysqli->prepare($query);
+        $statement->bindParam('is', $player, $boardJson);
         $statement->execute();
     }
 }

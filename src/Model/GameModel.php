@@ -66,14 +66,24 @@ class GameModel {
         $query = "INSERT INTO boards (player_id, coordinate, status, board_state) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE status = ?, board_state = ?";
         $statement = $this->mysqli->prepare($query);
     
+        if (!$statement) {
+            die('Error in prepare statement: ' . $this->mysqli->error);
+        }
+    
+        $coordinate = '';
+        $status = '';
         foreach ($board as $rowIndex => $row) {
             foreach ($row as $colIndex => $cell) {
                 $coordinate = chr(ord('A') + $colIndex) . ($rowIndex + 1);
-                $statement->bind_param('ississ', $player, $coordinate, $cell['status'], $boardJson, $cell['status'], $boardJson);
+                $status = $cell['status'];
+    
+                $statement->bind_param('ississ', $player, $coordinate, $status, $boardJson, $status, $boardJson);
                 $statement->execute();
             }
         }
-    }      
+    
+        $statement->close();
+    }         
 
     /**
      * Get the game board for a specific player from the database.

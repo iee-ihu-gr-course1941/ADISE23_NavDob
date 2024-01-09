@@ -6,7 +6,6 @@ include 'config.php';
 use src\Controller\GameController;
 use src\Model\GameModel;
 
-echo $config;
 // Instantiate the necessary objects
 $model = new GameModel($config);
 $controller = new GameController($model);

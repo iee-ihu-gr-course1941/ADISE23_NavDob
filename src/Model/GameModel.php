@@ -154,7 +154,7 @@ class GameModel {
      * @return int|null The player ID of the winner, or null if there is no winner.
      */
     public function getWinner() {
-        $playerIds = [1. 2];
+        $playerIds = [1, 2];
 
         foreach ($playerIds as $playerId) {
             if ($this->areAllShipsSunk($playerId)) {

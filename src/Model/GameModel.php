@@ -6,10 +6,10 @@ $config = require_once 'config.php';
 
 class GameModel {
 
-    private $pdo;
+    private $mysqli;
 
-    public function __construct() {
-        $this->initDatabaseConnection();
+    public function __construct($config) {
+        $this->mysqli = $config['mysqli'];
     }
 
     private function initDatabaseConnection() {

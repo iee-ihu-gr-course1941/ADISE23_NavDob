@@ -8,22 +8,21 @@ $charset = 'utf8mb4';
 
 // Check if the host is 'users.iee.ihu.gr'
 if (gethostname() == 'users.iee.ihu.gr') {
-    $pdo = new PDO(
-        "mysql:host=" . $host . ";dbname=" . $db . ";charset=" . $charset,
+    $mysqli = new mysqli(
+        $host,
         $user,
         $pass,
-        [
-            // Use a Unix socket for connection
-            PDO::MYSQL_ATTR_UNIX_SOCKET => '/home/student/it/2018/it185404/mysql/run/mysql.sock',
-        ]
+        $db,
+        null,
+        '/home/student/it/2018/it185404/mysql/run/mysql.sock'
     );
 } else {
     // For other hosts, use a traditional connection with a password
-    $pdo = new PDO(
-        "mysql:host=" . $host . ";dbname=" . $db . ";charset=" . $charset,
-        $user,
-        $pass
-    );
+    $mysqli = new mysqli($host, $user, $pass, $db);
+}
+
+if ($mysqli->connect_error) {
+    die("Connection failed: " . $mysqli->connect_error);
 }
 
 return [
@@ -32,5 +31,5 @@ return [
     'user' => $user,
     'pass' => $pass,
     'charset' => $charset,
-    'pdo' => $pdo, // Return the PDO object for database operations
+    'mysqli' => $mysqli, // Return the MySQLi object for database operations
 ];

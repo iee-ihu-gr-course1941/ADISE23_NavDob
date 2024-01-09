@@ -147,4 +147,21 @@ class GameModel {
 
         return $allShipsSunkPlayer1 || $allShipsSunkPlayer2;
     }
+
+    /**
+     * Get the winner of the game.
+     *
+     * @return int|null The player ID of the winner, or null if there is no winner.
+     */
+    public function getWinner() {
+        $playerIds = $this->getPlayerIds();
+
+        foreach ($playerIds as $playerId) {
+            if ($this->areAllShipsSunk($playerId)) {
+                return $playerId;
+            }
+        }
+
+        return null; // No winner yet
+    }
 }

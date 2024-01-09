@@ -1,6 +1,6 @@
 <?php
 
-$host = 'users.iee.ihu.gr';
+$host = 'localhost';
 $db = 'navmaxia';
 $user = 'it185404';
 $pass = '';

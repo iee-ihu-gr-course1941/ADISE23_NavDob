@@ -9,7 +9,7 @@ class GameController {
     private $gameModel;
     private $gameView;
 
-    public function __construct() {
+    public function __construct(GameModel $gameModel) {
         $this->gameModel = new GameModel();
         $this->gameView = new GameView();
     }

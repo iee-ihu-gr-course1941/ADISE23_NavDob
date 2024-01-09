@@ -63,27 +63,31 @@ class GameModel {
     private function savePlayerBoard($player, $board) {
         $boardJson = json_encode($board);
     
-        $query = "INSERT INTO boards (player_id, coordinate, status, board_state) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE status = ?, board_state = ?";
-        $statement = $this->mysqli->prepare($query);
-    
-        if (!$statement) {
-            die('Error in prepare statement: ' . $this->mysqli->error);
-        }
-    
-        $coordinate = '';
-        $status = '';
+        // Build the VALUES part of the SQL query for all cells
+        $values = '';
         foreach ($board as $rowIndex => $row) {
             foreach ($row as $colIndex => $cell) {
                 $coordinate = chr(ord('A') + $colIndex) . ($rowIndex + 1);
                 $status = $cell['status'];
     
-                $statement->bind_param('ississ', $player, $coordinate, $status, $boardJson, $status, $boardJson);
-                $statement->execute();
+                $values .= "($player, '$coordinate', '$status', '$boardJson'),";
             }
         }
     
-        $statement->close();
-    }         
+        // Remove the trailing comma from the values string
+        $values = rtrim($values, ',');
+    
+        // Build the full SQL query
+        $query = "INSERT INTO boards (player_id, coordinate, status, board_state) VALUES $values
+                  ON DUPLICATE KEY UPDATE status = VALUES(status), board_state = VALUES(board_state)";
+    
+        // Execute the query
+        $result = $this->mysqli->query($query);
+    
+        if (!$result) {
+            die('Error in query: ' . $this->mysqli->error);
+        }
+    }           
 
     /**
      * Get the game board for a specific player from the database.

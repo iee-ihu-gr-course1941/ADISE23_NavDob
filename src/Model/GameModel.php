@@ -66,15 +66,16 @@ class GameModel {
         $query = "INSERT INTO boards (player_id, position_x, position_y, status, board_state) VALUES (?, ?, ?, ?, ?)";
         $statement = $this->mysqli->prepare($query);
     
+        $statement->bind_param('iiiss', $player, $rowIndex, $colIndex, $status, $boardState);
+    
         for ($rowIndex = 0; $rowIndex < 10; $rowIndex++) {
             for ($colIndex = 0; $colIndex < 10; $colIndex++) {
-                $status = $board[$rowIndex][$colIndex]['status']; // Fix here
+                $status = $board[$rowIndex][$colIndex]['status'];
                 $boardState = $board[$rowIndex][$colIndex]['board_state'];
-                $statement->bind_param('iiiss', $player, $rowIndex, $colIndex, $status, $boardState);
                 $statement->execute();
             }
         }
-    }       
+    }          
 
     // Existing methods...
 

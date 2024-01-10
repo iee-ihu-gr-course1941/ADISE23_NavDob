@@ -149,51 +149,45 @@ class GameModel {
         return array_reduce($board, 'array_merge', []) === array_fill(0, 100, 0);
     }
 
-    /**
-     * Make a move on the game board.
-     * @param int    $playerId The ID of the player making the move.
-     * @param string $position The position for the move (e.g., A5).
-     * @return bool True if the move is valid, false otherwise.
-     */
     public function makeMove($playerId, $position) {
         $coordinates = $this->convertPositionToCoordinates($position);
-
+    
         // Check if the move is valid
         $board = $this->getPlayerBoard($playerId);
         if (!$this->isValidPosition($coordinates, $board)) {
             return false;
         }
-
-        // Get the current player's board
+    
+        // Update the board based on the move and get the status
         $status = $this->updateBoard($board, $coordinates);
-
+    
         // Save the updated board to the database
         $this->savePlayerBoard($playerId, $board);
-
+    
         // Check if the move resulted in a hit
         return $status === 'hit';
     }
-
+    
     private function updateBoard(&$board, $coordinates) {
         $row = $coordinates[0];
         $column = $coordinates[1];
-
+    
         // Check the status of the cell
         $cell = $board[$row][$column];
-
-        if ($cell['status'] === 'empty') {
+    
+        if ($cell === 0) {
             // The move is a miss
-            $board[$row][$column]['status'] = 'miss';
+            $board[$row][$column] = ['status' => 'miss', 'board_state' => 0];
             $status = 'miss';
-        } elseif ($cell['status'] === 'ship') {
+        } elseif (is_numeric($cell)) {
             // The move is a hit
-            $board[$row][$column]['status'] = 'hit';
+            $board[$row][$column] = ['status' => 'hit', 'board_state' => $cell];
             $status = 'hit';
         } else {
             // Cell is already hit or missed
             $status = 'invalid';
         }
-
+    
         return $status;
     }
 

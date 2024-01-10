@@ -60,12 +60,12 @@ class GameModel {
         return $row >= 0 && $row < 10 && $column >= 0 && $column < 10 && $board[$row][$column] === 0;
     }
 
-    private function savePlayerBoard($player, $board) {
-        $boardJson = json_encode($board);
+    private function savePlayerBoard($player, $ships) {
+        $boardJson = json_encode($ships);
     
         // Build the VALUES part of the SQL query for all cells
         $values = '';
-        foreach ($board as $rowIndex => $row) {
+        foreach ($ships as $rowIndex => $row) {
             foreach ($row as $colIndex => $cell) {
                 $coordinate = chr(ord('A') + $colIndex) . ($rowIndex + 1);
                 $status = $this->getStatusValue($cell['status']);
@@ -85,9 +85,10 @@ class GameModel {
         $result = $this->mysqli->query($query);
     
         if (!$result) {
-            die('Error in query: ' . $this->mysqli->error);
+            throw new Exception('Error in query: ' . $this->mysqli->error);
         }
     }
+    
     
     /**
      * Get the valid status value for the ENUM column.
@@ -109,11 +110,11 @@ class GameModel {
      */
     public function getPlayerBoard($playerId) {
         // Assuming you have a 'boards' table with columns 'position_x', 'position_y', 'status', and 'board_state'
-        $query = "SELECT position_x, position_y, status, board_state FROM boards WHERE player_id = ?";
+        $query = "SELECT player_id, coordinate, status, board_state FROM boards WHERE player_id = ?";
         $statement = $this->mysqli->prepare($query);
         $statement->bind_param('i', $playerId);
         $statement->execute();
-        $statement->bind_result($positionX, $positionY, $status, $boardState);
+        $statement->bind_result($playerId, $coordinate, $status, $boardState);
 
         // Create an array to represent the game board
         $board = array_fill(0, 10, array_fill(0, 10, 0));
@@ -158,7 +159,7 @@ class GameModel {
         // Iterate through the board and check if any ship is still afloat
         foreach ($playerBoard as $row) {
             foreach ($row as $cell) {
-                if ($cell === 'ship') {
+                if ($cell > 0) {
                     return false; // At least one ship is still afloat
                 }
             }

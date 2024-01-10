@@ -97,7 +97,6 @@ class GameModel {
     
     /**
      * Get the valid status value for the ENUM column.
-     *
      * @param string $status The status value to check.
      * @return string The valid status value.
      */
@@ -108,7 +107,6 @@ class GameModel {
               
     /**
      * Get the game board for a specific player from the database.
-     *
      * @param int $playerId The ID of the player.
      * @return array The game board for the player.
      */
@@ -141,7 +139,6 @@ class GameModel {
 
     /**
      * Check if the board is empty (no data in the database).
-     *
      * @param array $board The game board.
      * @return bool True if the board is empty, false otherwise.
      */
@@ -152,8 +149,53 @@ class GameModel {
     }
 
     /**
+     * Make a move on the game board.
+     * @param int    $playerId The ID of the player making the move.
+     * @param string $position The position for the move (e.g., A5).
+     * @return bool True if the move is valid, false otherwise.
+     */
+    public function makeMove($playerId, $position)
+    {
+        $coordinates = $this->convertPositionToCoordinates($position);
+        $board = $this->getPlayerBoard($playerId);
+
+        // Implement the logic for making a move here
+        // You may want to update the board based on the move and return true if the move is valid, false otherwise
+
+        // Example: Check if the cell is already hit or missed
+        if ($board[$coordinates[0]][$coordinates[1]]['status'] === 'hit' || $board[$coordinates[0]][$coordinates[1]]['status'] === 'miss') {
+            return false; // Move is invalid
+        }
+
+        // Example: Mark the cell as hit
+        $board[$coordinates[0]][$coordinates[1]]['status'] = 'hit';
+
+        // Update the board in the database
+        $this->updateBoardInDatabase($playerId, $board);
+
+        return true; // Move is valid
+    }
+
+    /**
+     * Update the game board for a specific player in the database.
+     * @param int   $playerId The ID of the player.
+     * @param array $board    The game board to update.
+     * @return void
+     */
+    private function updateBoardInDatabase($playerId, $board)
+    {
+        $boardJson = json_encode($board);
+
+        $query = "UPDATE boards SET status = ?, board_state = ? WHERE player_id = ?";
+        $statement = $this->mysqli->prepare($query);
+        $statement->bind_param('ssi', $status, $boardJson, $playerId);
+        $status = 'empty'; // Set the default status
+        $statement->execute();
+        $statement->close();
+    }
+
+    /**
      * Check if all ships for a player have been sunk.
-     *
      * @param int $playerId The player ID.
      * @return bool True if all ships are sunk, false otherwise.
      */
@@ -174,7 +216,6 @@ class GameModel {
 
     /**
      * Checks if the game is over.
-     *
      * @return bool True if the game is over, false otherwise.
      */
     public function isGameOver() {
@@ -187,7 +228,6 @@ class GameModel {
 
     /**
      * Get the winner of the game.
-     *
      * @return int|null The player ID of the winner, or null if there is no winner.
      */
     public function getWinner() {

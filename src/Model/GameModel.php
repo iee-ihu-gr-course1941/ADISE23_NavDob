@@ -29,6 +29,14 @@ class GameModel {
         $this->savePlayerBoard($player, $board);
     }
 
+    private function isValidPosition($coordinates, $board) {
+        $row = $coordinates[0];
+        $column = $coordinates[1];
+    
+        return $row >= 0 && $row < 10 && $column >= 0 && $column < 10 &&
+               ($board[$row][$column] === 0 || is_numeric($board[$row][$column]['board_state']));
+    }    
+
     private function placeShipManually(&$board, $shipSize, $player, $shipName) {
         echo "Player $player, place your $shipName ($shipSize spaces).\n";
 
@@ -51,15 +59,7 @@ class GameModel {
         $column = ord($position[0]) - ord('A');
         $row = intval(substr($position, 1)) - 1;
         return [$row, $column];
-    }
-
-    private function isValidPosition($coordinates, $board) {
-        $row = $coordinates[0];
-        $column = $coordinates[1];
-    
-        return $row >= 0 && $row < 10 && $column >= 0 && $column < 10 &&
-               ($board[$row][$column] === 0 || is_numeric($board[$row][$column]));
-    }    
+    }  
 
     private function savePlayerBoard($player, $ships) {
         $boardJson = json_encode($ships);

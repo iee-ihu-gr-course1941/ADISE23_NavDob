@@ -182,6 +182,29 @@ class GameModel {
         // Check the status of the cell
         $cell = $board[$row][$column];
 
+        if ($cell['status'] === 'empty') {
+            // The move is a miss
+            $board[$row][$column]['status'] = 'miss';
+            $status = 'miss';
+        } elseif ($cell['status'] === 'ship') {
+            // The move is a hit
+            $board[$row][$column]['status'] = 'hit';
+            $status = 'hit';
+        } else {
+            // Cell is already hit or missed
+            $status = 'invalid';
+        }
+
+        return $status;
+    }
+
+    private function updateBoard(&$board, $coordinates) {
+        $row = $coordinates[0];
+        $column = $coordinates[1];
+
+        // Check the status of the cell
+        $cell = $board[$row][$column];
+
         if ($cell['status'] === 'ship') {
             // The move is a hit
             $board[$row][$column]['status'] = 'hit';

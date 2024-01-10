@@ -45,35 +45,33 @@ class GameController {
         $this->gameModel->initializeGame();
     }
 
-/**
- * Processes a player's move.
- *
- * @param int $player The player making the move.
- */
-private function processPlayerMove($player) {
-    // Logic to handle a player's move
-    $isValidMove = false;
+    /**
+     * Processes a player's move.
+     * @param int $player The player making the move.
+     */
+    private function processPlayerMove($player) {
+        // Logic to handle a player's move
+        $isValidMove = false;
 
-    while (!$isValidMove) {
-        $position = strtoupper(trim(readline("Player $player, enter your move (e.g., A5): ")));
+        while (!$isValidMove) {
+            $position = strtoupper(trim(readline("Player $player, enter your move (e.g., A5): ")));
 
-        // Validate the input format
-        if (preg_match('/^[A-J]([1-9]|10)$/', $position)) {
-            $isValidMove = $this->gameModel->makeMove($player, $position);
+            // Validate the input format
+            if (preg_match('/^[A-J]([1-9]|10)$/', $position)) {
+                $isValidMove = $this->gameModel->makeMove($player, $position);
 
-            if (!$isValidMove) {
+                if (!$isValidMove) {
+                    $this->gameView->displayInvalidMoveMessage();
+                }
+            } else {
                 $this->gameView->displayInvalidMoveMessage();
             }
-        } else {
-            $this->gameView->displayInvalidMoveMessage();
         }
     }
-}
 
 
     /**
      * Checks if the game is over.
-     *
      * @return bool True if the game is over, false otherwise.
      */
     private function gameOver() {
@@ -82,7 +80,6 @@ private function processPlayerMove($player) {
 
     /**
      * Gets the result of the game.
-     *
      * @return string The result of the game (winner, loser, tie, etc.).
      */
     private function getGameResult() {

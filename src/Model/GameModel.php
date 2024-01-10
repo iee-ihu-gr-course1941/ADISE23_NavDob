@@ -154,44 +154,45 @@ class GameModel {
      * @param string $position The position for the move (e.g., A5).
      * @return bool True if the move is valid, false otherwise.
      */
-    public function makeMove($playerId, $position)
-    {
+    public function makeMove($player, $position) {
         $coordinates = $this->convertPositionToCoordinates($position);
-        $board = $this->getPlayerBoard($playerId);
 
-        // Implement the logic for making a move here
-        // You may want to update the board based on the move and return true if the move is valid, false otherwise
-
-        // Example: Check if the cell is already hit or missed
-        if ($board[$coordinates[0]][$coordinates[1]]['status'] === 'hit' || $board[$coordinates[0]][$coordinates[1]]['status'] === 'miss') {
-            return false; // Move is invalid
+        // Check if the move is valid
+        if (!$this->isValidPosition($coordinates, $this->getPlayerBoard($player))) {
+            return false;
         }
 
-        // Example: Mark the cell as hit
-        $board[$coordinates[0]][$coordinates[1]]['status'] = 'hit';
+        // Get the current player's board
+        $board = $this->getPlayerBoard($player);
 
-        // Update the board in the database
-        $this->updateBoardInDatabase($playerId, $board);
+        // Update the board based on the move
+        $status = $this->updateBoard($board, $coordinates);
 
-        return true; // Move is valid
+        // Save the updated board to the database
+        $this->savePlayerBoard($player, $board);
+
+        // Check if the move resulted in a hit
+        return $status === 'hit';
     }
 
-    /**
-     * Update the game board for a specific player in the database.
-     * @param int   $playerId The ID of the player.
-     * @param array $board    The game board to update.
-     * @return void
-     */
-    private function updateBoardInDatabase($playerId, $board)
-    {
-        $boardJson = json_encode($board);
+    private function updateBoard(&$board, $coordinates) {
+        $row = $coordinates[0];
+        $column = $coordinates[1];
 
-        $query = "UPDATE boards SET status = ?, board_state = ? WHERE player_id = ?";
-        $statement = $this->mysqli->prepare($query);
-        $statement->bind_param('ssi', $status, $boardJson, $playerId);
-        $status = 'empty'; // Set the default status
-        $statement->execute();
-        $statement->close();
+        // Check the status of the cell
+        $cell = $board[$row][$column];
+
+        if ($cell['status'] === 'ship') {
+            // The move is a hit
+            $board[$row][$column]['status'] = 'hit';
+            $status = 'hit';
+        } else {
+            // The move is a miss
+            $board[$row][$column]['status'] = 'miss';
+            $status = 'miss';
+        }
+
+        return $status;
     }
 
     /**

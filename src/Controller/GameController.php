@@ -24,12 +24,12 @@ class GameController {
 
         while (!$this->gameOver()) {
             $this->gameView->displayMessage("Game Board:");
-            $this->gameView->displayGameBoard($this->gameModel->getBoard(1)); // Player 1 board
+            $this->gameView->displayGameBoard($this->gameModel->getPlayerBoard(1)); // Player 1 board
 
             $this->processPlayerMove(1); // Player 1 turn
 
             $this->gameView->displayMessage("Game Board:");
-            $this->gameView->displayGameBoard($this->gameModel->getBoard(2)); // Player 2 board
+            $this->gameView->displayGameBoard($this->gameModel->getPlayerBoard(2)); // Player 2 board
 
             $this->processPlayerMove(2); // Player 2 turn
         }
@@ -45,24 +45,31 @@ class GameController {
         $this->gameModel->initializeGame();
     }
 
-    /**
-     * Processes a player's move.
-     *
-     * @param int $player The player making the move.
-     */
-    private function processPlayerMove($player) {
-        // Logic to handle a player's move
-        $isValidMove = false;
+/**
+ * Processes a player's move.
+ *
+ * @param int $player The player making the move.
+ */
+private function processPlayerMove($player) {
+    // Logic to handle a player's move
+    $isValidMove = false;
 
-        while (!$isValidMove) {
-            $position = strtoupper(trim(readline("Player $player, enter your move (e.g., A5): ")));
+    while (!$isValidMove) {
+        $position = strtoupper(trim(readline("Player $player, enter your move (e.g., A5): ")));
+
+        // Validate the input format
+        if (preg_match('/^[A-J]([1-9]|10)$/', $position)) {
             $isValidMove = $this->gameModel->makeMove($player, $position);
 
             if (!$isValidMove) {
                 $this->gameView->displayInvalidMoveMessage();
             }
+        } else {
+            $this->gameView->displayInvalidMoveMessage();
         }
     }
+}
+
 
     /**
      * Checks if the game is over.

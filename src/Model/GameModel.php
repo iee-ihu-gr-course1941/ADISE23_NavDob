@@ -198,26 +198,6 @@ class GameModel {
         return $status;
     }
 
-    private function updateBoard(&$board, $coordinates) {
-        $row = $coordinates[0];
-        $column = $coordinates[1];
-
-        // Check the status of the cell
-        $cell = $board[$row][$column];
-
-        if ($cell['status'] === 'ship') {
-            // The move is a hit
-            $board[$row][$column]['status'] = 'hit';
-            $status = 'hit';
-        } else {
-            // The move is a miss
-            $board[$row][$column]['status'] = 'miss';
-            $status = 'miss';
-        }
-
-        return $status;
-    }
-
     /**
      * Check if all ships for a player have been sunk.
      * @param int $playerId The player ID.

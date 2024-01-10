@@ -46,9 +46,8 @@ class GameView {
      * @param array $row The row to display.
      */
     private function displayBoardRow(array $row) {
-        // Display each cell in the row
         foreach ($row as $cell) {
-            echo $this->getSymbolForCell($cell) . ' ';
+            echo strval($cell) . ' ';
         }
     }
 

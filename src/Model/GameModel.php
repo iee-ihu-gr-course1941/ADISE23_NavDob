@@ -68,7 +68,13 @@ class GameModel {
         foreach ($ships as $rowIndex => $row) {
             foreach ($row as $colIndex => $cell) {
                 $coordinate = chr(ord('A') + $colIndex) . ($rowIndex + 1);
-                $status = $this->getStatusValue($cell['status']);
+    
+                if (is_array($cell)) {
+                    $status = $this->getStatusValue($cell['status']);
+                } else {
+                    // Handle the case when $cell is not an array
+                    $status = $this->getStatusValue($cell);
+                }
     
                 $values .= "($player, '$coordinate', '$status', '$boardJson'),";
             }
@@ -88,7 +94,6 @@ class GameModel {
             throw new Exception('Error in query: ' . $this->mysqli->error);
         }
     }
-    
     
     /**
      * Get the valid status value for the ENUM column.

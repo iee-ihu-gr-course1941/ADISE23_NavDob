@@ -154,22 +154,20 @@ class GameModel {
      * @param string $position The position for the move (e.g., A5).
      * @return bool True if the move is valid, false otherwise.
      */
-    public function makeMove($player, $position) {
+    public function makeMove($playerId, $position) {
         $coordinates = $this->convertPositionToCoordinates($position);
 
         // Check if the move is valid
-        if (!$this->isValidPosition($coordinates, $this->getPlayerBoard($player))) {
+        $board = $this->getPlayerBoard($playerId);
+        if (!$this->isValidPosition($coordinates, $board)) {
             return false;
         }
 
         // Get the current player's board
-        $board = $this->getPlayerBoard($player);
-
-        // Update the board based on the move
         $status = $this->updateBoard($board, $coordinates);
 
         // Save the updated board to the database
-        $this->savePlayerBoard($player, $board);
+        $this->savePlayerBoard($playerId, $board);
 
         // Check if the move resulted in a hit
         return $status === 'hit';

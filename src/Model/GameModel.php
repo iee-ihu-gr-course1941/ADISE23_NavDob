@@ -56,9 +56,10 @@ class GameModel {
     private function isValidPosition($coordinates, $board) {
         $row = $coordinates[0];
         $column = $coordinates[1];
-
-        return $row >= 0 && $row < 10 && $column >= 0 && $column < 10 && $board[$row][$column] === 0;
-    }
+    
+        return $row >= 0 && $row < 10 && $column >= 0 && $column < 10 &&
+               ($board[$row][$column] === 0 || is_numeric($board[$row][$column]));
+    }    
 
     private function savePlayerBoard($player, $ships) {
         $boardJson = json_encode($ships);

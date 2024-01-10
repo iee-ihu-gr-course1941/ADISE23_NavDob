@@ -101,7 +101,6 @@ class GameModel {
         return in_array($status, $validStatusValues) ? $status : 'empty';
     }
               
-
     /**
      * Get the game board for a specific player from the database.
      *
@@ -109,7 +108,6 @@ class GameModel {
      * @return array The game board for the player.
      */
     public function getPlayerBoard($playerId) {
-        // Assuming you have a 'boards' table with columns 'position_x', 'position_y', 'status', and 'board_state'
         $query = "SELECT player_id, coordinate, status, board_state FROM boards WHERE player_id = ?";
         $statement = $this->mysqli->prepare($query);
         $statement->bind_param('i', $playerId);
@@ -122,7 +120,8 @@ class GameModel {
         // Fetch each row and update the game board
         while ($statement->fetch()) {
             // Update the board based on retrieved data
-            $board[$positionX][$positionY] = ['status' => $status, 'board_state' => $boardState];
+            list($row, $column) = $this->convertPositionToCoordinates($coordinate);
+            $board[$row][$column] = ['status' => $status, 'board_state' => $boardState];
         }
 
         $statement->close();
